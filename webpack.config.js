@@ -3,7 +3,6 @@ const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const devServerHttpsOptions = require("office-addin-dev-certs").getHttpsServerOptions();
 const officeAddinConfig = require("./office-addin.config.cjs");
 
 /** Local dev origin (must match manifest/manifest.xml placeholders). */
@@ -13,6 +12,9 @@ const urlProdOrigin = String(process.env.OFFICE_ADDIN_ORIGIN || officeAddinConfi
 
 module.exports = async (env, options) => {
   const isProd = options.mode === "production";
+
+  // Dev HTTPS certs only for `webpack serve` — never load on production CI (no sudo, no cert install).
+  const devServerHttpsOptions = isProd ? null : await require("office-addin-dev-certs").getHttpsServerOptions();
 
   return {
     devtool: "source-map",
@@ -65,35 +67,37 @@ module.exports = async (env, options) => {
         ]
       })
     ],
-    devServer: {
-      port: 3000,
-      // Office’s embedded WebView (esp. on Mac) often cannot use the dev server’s WebSocket/HMR client.
-      // That shows up as a generic "Script error" from webpack’s overlay (handleError). Disable it.
-      hot: false,
-      liveReload: false,
-      client: false,
-      headers: {
-        "Access-Control-Allow-Origin": "*"
-      },
-      server: {
-        type: "https",
-        options: await devServerHttpsOptions
-      },
-      static: {
-        directory: path.join(__dirname, "dist")
-      },
-      // Makes it obvious the dev server is running (it does not return to a shell prompt until you Ctrl+C).
-      onListening(devServer) {
-        const addr = devServer.server && devServer.server.address();
-        const port = addr && typeof addr === "object" ? addr.port : 3000;
-        // eslint-disable-next-line no-console
-        console.log(
-          `\n[Lower Third Builder] Dev server is running. Leave this terminal open.\n` +
-            `  Task pane: https://localhost:${port}/taskpane.html\n` +
-            `  Then sideload manifest/manifest.xml in PowerPoint (Insert → Add-ins → Add from file).\n`
-        );
-      }
-    },
+    devServer: isProd
+      ? undefined
+      : {
+          port: 3000,
+          // Office’s embedded WebView (esp. on Mac) often cannot use the dev server’s WebSocket/HMR client.
+          // That shows up as a generic "Script error" from webpack’s overlay (handleError). Disable it.
+          hot: false,
+          liveReload: false,
+          client: false,
+          headers: {
+            "Access-Control-Allow-Origin": "*"
+          },
+          server: {
+            type: "https",
+            options: devServerHttpsOptions
+          },
+          static: {
+            directory: path.join(__dirname, "dist")
+          },
+          // Makes it obvious the dev server is running (it does not return to a shell prompt until you Ctrl+C).
+          onListening(devServer) {
+            const addr = devServer.server && devServer.server.address();
+            const port = addr && typeof addr === "object" ? addr.port : 3000;
+            // eslint-disable-next-line no-console
+            console.log(
+              `\n[Lower Third Builder] Dev server is running. Leave this terminal open.\n` +
+                `  Task pane: https://localhost:${port}/taskpane.html\n` +
+                `  Then sideload manifest/manifest.xml in PowerPoint (Insert → Add-ins → Add from file).\n`
+            );
+          }
+        },
     output: {
       clean: true,
       path: path.resolve(__dirname, "dist"),
