@@ -1,0 +1,171 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 13px;
+  color: #111;
+}
+
+.app {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.header h1 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.muted {
+  color: #666;
+}
+
+.section {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+}
+
+.section h2 {
+  font-size: 13px;
+  margin: 0 0 8px 0;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+button {
+  border: 1px solid #bbb;
+  background: #f7f7f7;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+button.primary {
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+select,
+input[type="number"],
+input[type="text"] {
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #e5e5e5;
+  padding: 6px;
+  text-align: left;
+  font-size: 12px;
+  vertical-align: top;
+}
+
+.status {
+  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+}
+
+.mappingList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mappingItem {
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mappingMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.previewToolbar {
+  margin-bottom: 6px;
+}
+
+.previewToolbar__sep {
+  margin: 0 2px;
+  user-select: none;
+}
+
+.previewTableWrap {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+}
+
+.previewTable {
+  width: 100%;
+  margin: 0;
+}
+
+.previewTable th.previewTable__check,
+.previewTable td.previewTable__check {
+  width: 52px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.previewTable th.previewTable__idx,
+.previewTable td.previewTable__idx {
+  width: 40px;
+  text-align: right;
+  color: #666;
+}
+
+.previewRow {
+  cursor: pointer;
+}
+
+.previewRow:hover {
+  background: #f5f8ff;
+}
+
+.previewRow--selected {
+  background: #e8f0fe;
+}
+
+.previewRow--selected:hover {
+  background: #dbe8fd;
+}
+
