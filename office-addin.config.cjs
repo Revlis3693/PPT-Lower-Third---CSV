@@ -11,8 +11,8 @@
  * Override without editing this file:
  *   OFFICE_ADDIN_ORIGIN=https://your.host npm run build
  *
- * On Vercel, `VERCEL_URL` is set automatically and webpack uses it for the manifest
- * unless OFFICE_ADDIN_ORIGIN is set (use that for a custom domain).
+ * On Vercel, webpack prefers `VERCEL_PROJECT_PRODUCTION_URL` (stable `*.vercel.app`),
+ * then `VERCEL_URL`. Set `OFFICE_ADDIN_ORIGIN` to pin a custom domain in the manifest.
  */
 module.exports = {
   productionOrigin: "https://localhost:3000"

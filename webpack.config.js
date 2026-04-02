@@ -11,12 +11,15 @@ const urlDevOrigin = "https://localhost:3000";
 /**
  * Production manifest URLs (no trailing slash).
  * 1) OFFICE_ADDIN_ORIGIN — set manually (e.g. custom domain).
- * 2) VERCEL_URL — set automatically on Vercel builds (so Office loads the deployed host, not localhost).
- * 3) office-addin.config.cjs productionOrigin (often localhost for local `npm run build` tests).
+ * 2) VERCEL_PROJECT_PRODUCTION_URL — stable project host (e.g. name.vercel.app); preferred over deployment-only URL.
+ * 3) VERCEL_URL — current deployment host (can differ from your usual .vercel.app link).
+ * 4) office-addin.config.cjs productionOrigin (localhost for local `npm run build` tests).
  */
 function resolveProductionOrigin() {
   const explicit = process.env.OFFICE_ADDIN_ORIGIN;
   if (explicit) return String(explicit).replace(/\/$/, "");
+  const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (productionHost) return `https://${String(productionHost).replace(/\/$/, "")}`;
   const vercel = process.env.VERCEL_URL;
   if (vercel) return `https://${String(vercel).replace(/\/$/, "")}`;
   return String(officeAddinConfig.productionOrigin).replace(/\/$/, "");
@@ -25,6 +28,21 @@ function resolveProductionOrigin() {
 module.exports = async (env, options) => {
   const isProd = options.mode === "production";
   const urlProdOrigin = resolveProductionOrigin();
+
+  if (isProd) {
+    // eslint-disable-next-line no-console
+    console.log("[webpack] Office add-in manifest will use origin:", urlProdOrigin);
+  }
+
+  // Vercel runs webpack in production but often does not expose VERCEL_* to the build unless configured.
+  // If we still fall back to localhost, the deployed manifest breaks PowerPoint.
+  if (isProd && process.env.VERCEL === "1" && urlProdOrigin.includes("localhost")) {
+    throw new Error(
+      "[webpack] Production build on Vercel would emit localhost URLs in manifest.xml. " +
+        "Set OFFICE_ADDIN_ORIGIN in vercel.json env or Vercel Project → Settings → Environment Variables " +
+        "(e.g. https://ppt-lower-third-csv.vercel.app), then redeploy."
+    );
+  }
 
   // Dev HTTPS certs only for `webpack serve` — never load on production CI (no sudo, no cert install).
   const devServerHttpsOptions = isProd ? null : await require("office-addin-dev-certs").getHttpsServerOptions();
@@ -76,7 +94,8 @@ module.exports = async (env, options) => {
               // Replace every manifest URL that uses the local dev origin.
               return src.split(urlDevOrigin).join(urlProdOrigin);
             }
-          }
+          },
+          { from: "assets", to: "assets" }
         ]
       })
     ],

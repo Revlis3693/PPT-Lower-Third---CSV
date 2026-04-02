@@ -1,3 +1,9 @@
 {
-  "rewrites": [{ "source": "/", "destination": "/taskpane.html" }]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [{ "source": "/", "destination": "/taskpane.html" }],
+  "build": {
+    "env": {
+      "OFFICE_ADDIN_ORIGIN": "https://ppt-lower-third-csv.vercel.app"
+    }
+  }
 }
