@@ -7,11 +7,24 @@ const officeAddinConfig = require("./office-addin.config.cjs");
 
 /** Local dev origin (must match manifest/manifest.xml placeholders). */
 const urlDevOrigin = "https://localhost:3000";
-/** Production: office-addin.config.cjs or env OFFICE_ADDIN_ORIGIN (no trailing slash). */
-const urlProdOrigin = String(process.env.OFFICE_ADDIN_ORIGIN || officeAddinConfig.productionOrigin).replace(/\/$/, "");
+
+/**
+ * Production manifest URLs (no trailing slash).
+ * 1) OFFICE_ADDIN_ORIGIN — set manually (e.g. custom domain).
+ * 2) VERCEL_URL — set automatically on Vercel builds (so Office loads the deployed host, not localhost).
+ * 3) office-addin.config.cjs productionOrigin (often localhost for local `npm run build` tests).
+ */
+function resolveProductionOrigin() {
+  const explicit = process.env.OFFICE_ADDIN_ORIGIN;
+  if (explicit) return String(explicit).replace(/\/$/, "");
+  const vercel = process.env.VERCEL_URL;
+  if (vercel) return `https://${String(vercel).replace(/\/$/, "")}`;
+  return String(officeAddinConfig.productionOrigin).replace(/\/$/, "");
+}
 
 module.exports = async (env, options) => {
   const isProd = options.mode === "production";
+  const urlProdOrigin = resolveProductionOrigin();
 
   // Dev HTTPS certs only for `webpack serve` — never load on production CI (no sudo, no cert install).
   const devServerHttpsOptions = isProd ? null : await require("office-addin-dev-certs").getHttpsServerOptions();
