@@ -245,6 +245,11 @@ export async function duplicateTemplateSlideAndPopulate(params: {
     return { created: 0, warnings: [] };
   }
 
+  onProgress?.("Exporting template…");
+  await new Promise<void>((resolve) => {
+    window.setTimeout(() => resolve(), 0);
+  });
+
   // One short run to export the template — avoids one giant batch that freezes the task pane WebView.
   const templateBase64 = await PowerPoint.run(async (context) => {
     const allSlides = context.presentation.slides;

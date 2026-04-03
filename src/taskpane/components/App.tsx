@@ -43,6 +43,8 @@ export default function App() {
   const [status, setStatus] = useState<StatusMessage[]>([]);
   const [busy, setBusy] = useState<boolean>(false);
   const [progressText, setProgressText] = useState<string>("");
+  /** True only while Generate slides is running (for spinner + progress row, not other busy work). */
+  const [isGeneratingSlides, setIsGeneratingSlides] = useState(false);
 
   const [skipBlankValues, setSkipBlankValues] = useState<boolean>(false);
   const [removeDuplicates, setRemoveDuplicates] = useState<boolean>(false);
@@ -284,8 +286,9 @@ export default function App() {
     }
     try {
       setBusy(true);
+      setIsGeneratingSlides(true);
       setStatus([]);
-      setProgressText("");
+      setProgressText("Working…");
 
       const templateSlideId = await getTemplateSlideIdFromSelection();
       const res = await duplicateTemplateSlideAndPopulate({
@@ -306,12 +309,14 @@ export default function App() {
       pushStatus({ kind: "error", message: e?.message ?? String(e) });
     } finally {
       setBusy(false);
+      setIsGeneratingSlides(false);
       setProgressText("");
     }
   }
 
   function onReset() {
     setBusy(false);
+    setIsGeneratingSlides(false);
     setProgressText("");
     setHeaders([]);
     setRawRows([]);
@@ -606,8 +611,13 @@ export default function App() {
           <button className="primary" type="button" onClick={() => void onGenerateSlides()} disabled={busy || !canGenerate}>
             Generate slides
           </button>
-          {busy && progressText ? <span className="muted">{progressText}</span> : null}
         </div>
+        {isGeneratingSlides ? (
+          <div className="generateProgress" role="status" aria-live="polite">
+            <span className="generateProgress__spinner" aria-hidden="true" />
+            <span className="generateProgress__text">{progressText || "Working…"}</span>
+          </div>
+        ) : null}
       </div>
 
       <div className="section">
