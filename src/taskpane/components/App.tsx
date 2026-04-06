@@ -59,6 +59,9 @@ export default function App() {
 
   const [fileInputKey, setFileInputKey] = useState(0);
 
+  /** CSV parse + shape scan: show banner; avoid locking the whole UI during slide scan. */
+  const [importPhase, setImportPhase] = useState<"idle" | "parsing" | "scanningShapes">("idle");
+
   const effectiveRows = useMemo(() => {
     if (!headers.length || !rawRows.length) return [];
     let r = rawRows.map((row) => (cleanData ? cleanRow(row, headers) : { ...row }));
@@ -119,7 +122,6 @@ export default function App() {
    * Errors are shown in status; does not throw (safe to call after CSV load).
    */
   async function runRefreshShapesFlow(): Promise<void> {
-    setProgressText("Reading shapes…");
     await new Promise<void>((r) => window.setTimeout(() => r(), 0));
     try {
       const { templateSlideId, shapes } = await listMappableShapesOnTemplateSlide();
@@ -143,9 +145,8 @@ export default function App() {
 
   async function onCsvFileSelected(file: File | null) {
     if (!file) return;
+    setImportPhase("parsing");
     try {
-      setBusy(true);
-      setProgressText("");
       setStatus([]);
 
       const parsed = await parseCsv(file);
@@ -156,13 +157,13 @@ export default function App() {
       pushStatus({ kind: "success", message: `Loaded ${parsed.rows.length} rows with ${parsed.headers.length} columns.` });
 
       if (parsed.headers.length > 0 && parsed.rows.length > 0) {
+        setImportPhase("scanningShapes");
         await runRefreshShapesFlow();
       }
     } catch (e: any) {
       pushStatus({ kind: "error", message: e?.message ?? String(e) });
     } finally {
-      setBusy(false);
-      setProgressText("");
+      setImportPhase("idle");
     }
   }
 
@@ -171,12 +172,11 @@ export default function App() {
       pushStatus({ kind: "warning", message: "Load a CSV first." });
       return;
     }
+    setImportPhase("scanningShapes");
     try {
-      setBusy(true);
       await runRefreshShapesFlow();
     } finally {
-      setBusy(false);
-      setProgressText("");
+      setImportPhase("idle");
     }
   }
 
@@ -351,6 +351,7 @@ export default function App() {
     setShapeChoices([]);
     setSelectedShapeId("");
     setTemplateSlideIdForMapping(null);
+    setImportPhase("idle");
     setFileInputKey((k) => k + 1);
     pushStatus({ kind: "info", message: "Reset complete. Load a CSV again if needed." });
   }
@@ -365,11 +366,32 @@ export default function App() {
       <div className="header">
         <h1>Lower Third Builder</h1>
         <div className="row">
-          <button type="button" onClick={onReset} title="Clears data and unlocks the pane if an operation got stuck">
+          <button
+            type="button"
+            onClick={onReset}
+            disabled={busy || importPhase !== "idle"}
+            title="Clears data and unlocks the pane if an operation got stuck"
+          >
             Reset
           </button>
         </div>
       </div>
+
+      {importPhase !== "idle" ? (
+        <div className="importBanner" role="status" aria-live="polite">
+          <span className="importBanner__spinner" aria-hidden="true" />
+          <div className="importBanner__body">
+            <div className="importBanner__title">
+              {importPhase === "parsing" ? "Reading CSV file…" : "Scanning slide for shapes…"}
+            </div>
+            <div className="importBanner__detail">
+              {importPhase === "parsing"
+                ? "Parsing rows and columns."
+                : "This can take a few seconds. The selected slide in the thumbnail pane is scanned for text boxes and placeholders."}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {!envOk && (
         <div className="section">
@@ -387,7 +409,7 @@ export default function App() {
             key={fileInputKey}
             type="file"
             accept=".csv,text/csv"
-            disabled={busy}
+            disabled={busy || importPhase !== "idle"}
             onChange={(e) => onCsvFileSelected(e.target.files?.[0] ?? null)}
           />
             <label className="row" title="When mapping to shapes: do not overwrite with empty CSV cells. Empty table rows are always omitted.">
@@ -516,7 +538,7 @@ export default function App() {
               Map each CSV column to a text box on your template slide. With your template slide selected in the thumbnails, shapes are scanned automatically when you load a CSV; use <b>Refresh shapes</b> again if you switch slides. Then pick a column and a shape, then <b>Add mapping</b>.
             </div>
             <div className="row">
-              <button className="primary" onClick={onRefreshShapes} disabled={busy || !canMap}>
+              <button className="primary" onClick={onRefreshShapes} disabled={busy || importPhase !== "idle" || !canMap}>
                 Refresh shapes
               </button>
               <span className="muted">Uses the slide selected in the thumbnail pane (one slide only).</span>
