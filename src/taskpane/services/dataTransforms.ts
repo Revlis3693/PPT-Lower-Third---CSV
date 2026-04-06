@@ -12,6 +12,19 @@ export function cleanRow(row: CsvRow, headers: string[]): CsvRow {
   return out;
 }
 
+/** True if at least one column has non-whitespace content. */
+export function rowHasAnyCellData(row: CsvRow, headers: string[]): boolean {
+  return headers.some((h) => {
+    const v = row[h];
+    return v != null && String(v).trim().length > 0;
+  });
+}
+
+/** Drop rows where every column is empty or whitespace (after values are as stored in row). */
+export function dropRowsWithNoCellData(rows: CsvRow[], headers: string[]): CsvRow[] {
+  return rows.filter((row) => rowHasAnyCellData(row, headers));
+}
+
 /** Remove duplicate rows where all column values match (order-preserving). */
 export function dedupeRows(rows: CsvRow[], headers: string[]): CsvRow[] {
   const seen = new Set<string>();

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { CsvRow, ShapeMapping, StatusMessage } from "../types";
 import { getCharThresholdForColumn } from "../config/columnCharThresholds";
 import { parseCsv } from "../services/csv";
-import { cleanRow, dedupeRows } from "../services/dataTransforms";
+import { cleanRow, dedupeRows, dropRowsWithNoCellData } from "../services/dataTransforms";
 import {
   applyRowToMappingsOnSlide,
   duplicateTemplateSlideAndPopulate,
@@ -62,6 +62,8 @@ export default function App() {
   const effectiveRows = useMemo(() => {
     if (!headers.length || !rawRows.length) return [];
     let r = rawRows.map((row) => (cleanData ? cleanRow(row, headers) : { ...row }));
+    // Rows can become all-empty after cleaning (e.g. whitespace-only cells).
+    r = dropRowsWithNoCellData(r, headers);
     if (removeDuplicates) r = dedupeRows(r, headers);
     return r;
   }, [rawRows, headers, cleanData, removeDuplicates]);
@@ -370,15 +372,15 @@ export default function App() {
             disabled={busy}
             onChange={(e) => onCsvFileSelected(e.target.files?.[0] ?? null)}
           />
-          <label className="row">
-            <input
-              type="checkbox"
-              checked={skipBlankValues}
-              disabled={busy}
-              onChange={(e) => setSkipBlankValues(e.target.checked)}
-            />
-            <span>Skip blank values</span>
-          </label>
+            <label className="row" title="When mapping to shapes: do not overwrite with empty CSV cells. Empty table rows are always omitted.">
+              <input
+                type="checkbox"
+                checked={skipBlankValues}
+                disabled={busy}
+                onChange={(e) => setSkipBlankValues(e.target.checked)}
+              />
+              <span>Skip blank values (when filling shapes)</span>
+            </label>
           <label className="row">
             <input
               type="checkbox"

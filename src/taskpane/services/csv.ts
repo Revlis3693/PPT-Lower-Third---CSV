@@ -1,5 +1,6 @@
 import Papa from "papaparse";
 import type { CsvRow } from "../types";
+import { dropRowsWithNoCellData } from "./dataTransforms";
 
 export type ParsedCsv = {
   headers: string[];
@@ -10,7 +11,8 @@ export function parseCsv(file: File): Promise<ParsedCsv> {
   return new Promise((resolve, reject) => {
     Papa.parse<CsvRow>(file, {
       header: true,
-      skipEmptyLines: true,
+      // "greedy" also skips lines that are only commas / delimiters (no cell text).
+      skipEmptyLines: "greedy",
       transformHeader: (h) => h.trim(),
       transform: (v) => (typeof v === "string" ? v.trim() : v),
       complete: (results) => {
@@ -29,7 +31,7 @@ export function parseCsv(file: File): Promise<ParsedCsv> {
 
         resolve({
           headers,
-          rows
+          rows: dropRowsWithNoCellData(rows, headers)
         });
       },
       error: (err) => reject(err)
