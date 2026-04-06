@@ -4,8 +4,8 @@
            xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
            xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
            xsi:type="TaskPaneApp">
-  <Id>3a7c3c66-5e69-4ad5-8c9f-70e74c1c3b07</Id>
-  <Version>0.1.1.0</Version>
+  <Id>7f215277-fedb-4202-b966-77aafd7c77b1</Id>
+  <Version>0.1.2.0</Version>
   <ProviderName>BatchSlide</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="BatchSlide"/>

@@ -1,6 +1,6 @@
 {
   "name": "batch-slide",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "PowerPoint task pane add-in (BatchSlide) — batch-generate slides from CSV.",
   "license": "MIT",
