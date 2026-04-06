@@ -114,6 +114,33 @@ export default function App() {
     [effectiveRows, mappings, skipBlankValues]
   );
 
+  /**
+   * Reads shapes from the currently selected slide (same as Refresh shapes).
+   * Errors are shown in status; does not throw (safe to call after CSV load).
+   */
+  async function runRefreshShapesFlow(): Promise<void> {
+    setProgressText("Reading shapes…");
+    await new Promise<void>((r) => window.setTimeout(() => r(), 0));
+    try {
+      const { templateSlideId, shapes } = await listMappableShapesOnTemplateSlide();
+      setTemplateSlideIdForMapping(templateSlideId);
+      setShapeChoices(shapes);
+      setSelectedShapeId(shapes[0]?.shapeId ?? "");
+
+      if (shapes.length === 0) {
+        pushStatus({
+          kind: "warning",
+          message:
+            "No text boxes, placeholders, or shapes found on the selected slide. Use Insert → Text Box, or name shapes in the Selection Pane (Home → Arrange → Selection Pane), then click Refresh shapes."
+        });
+      } else {
+        pushStatus({ kind: "success", message: `Found ${shapes.length} shape(s) on this slide. Pick a CSV column and a shape, then Add mapping.` });
+      }
+    } catch (e: any) {
+      pushStatus({ kind: "error", message: e?.message ?? String(e) });
+    }
+  }
+
   async function onCsvFileSelected(file: File | null) {
     if (!file) return;
     try {
@@ -127,10 +154,15 @@ export default function App() {
       setRowIndex(0);
       setSelectedColumn(parsed.headers[0] ?? "");
       pushStatus({ kind: "success", message: `Loaded ${parsed.rows.length} rows with ${parsed.headers.length} columns.` });
+
+      if (parsed.headers.length > 0 && parsed.rows.length > 0) {
+        await runRefreshShapesFlow();
+      }
     } catch (e: any) {
       pushStatus({ kind: "error", message: e?.message ?? String(e) });
     } finally {
       setBusy(false);
+      setProgressText("");
     }
   }
 
@@ -141,25 +173,7 @@ export default function App() {
     }
     try {
       setBusy(true);
-      setProgressText("Reading shapes…");
-      await new Promise<void>((r) => window.setTimeout(() => r(), 0));
-
-      const { templateSlideId, shapes } = await listMappableShapesOnTemplateSlide();
-      setTemplateSlideIdForMapping(templateSlideId);
-      setShapeChoices(shapes);
-      setSelectedShapeId(shapes[0]?.shapeId ?? "");
-
-      if (shapes.length === 0) {
-        pushStatus({
-          kind: "warning",
-          message:
-            "No text boxes, placeholders, or shapes found. Use Insert → Text Box, or name shapes in the Selection Pane (Home → Arrange → Selection Pane), then refresh again."
-        });
-      } else {
-        pushStatus({ kind: "success", message: `Found ${shapes.length} shape(s) on this slide. Pick a CSV column and a shape, then Add mapping.` });
-      }
-    } catch (e: any) {
-      pushStatus({ kind: "error", message: e?.message ?? String(e) });
+      await runRefreshShapesFlow();
     } finally {
       setBusy(false);
       setProgressText("");
@@ -172,7 +186,11 @@ export default function App() {
       return;
     }
     if (!templateSlideIdForMapping) {
-      pushStatus({ kind: "warning", message: 'Click "Refresh shapes" first (with your template slide selected in the thumbnails).' });
+      pushStatus({
+        kind: "warning",
+        message:
+          "No shapes loaded yet. Select your template slide in the thumbnails, then click Refresh shapes (shapes also scan automatically when you load a CSV)."
+      });
       return;
     }
     if (!selectedColumn) {
@@ -495,7 +513,7 @@ export default function App() {
         ) : (
           <>
             <div className="muted" style={{ marginBottom: 10 }}>
-              Map each CSV column to a text box on your template slide. Select your template slide in the thumbnails, click <b>Refresh shapes</b>, then pick a column and a shape, then <b>Add mapping</b>.
+              Map each CSV column to a text box on your template slide. With your template slide selected in the thumbnails, shapes are scanned automatically when you load a CSV; use <b>Refresh shapes</b> again if you switch slides. Then pick a column and a shape, then <b>Add mapping</b>.
             </div>
             <div className="row">
               <button className="primary" onClick={onRefreshShapes} disabled={busy || !canMap}>
@@ -519,7 +537,7 @@ export default function App() {
                 onChange={(e) => setSelectedShapeId(e.target.value)}
               >
                 {shapeChoices.length === 0 ? (
-                  <option value="">— Refresh shapes first —</option>
+                  <option value="">— Load CSV or Refresh shapes —</option>
                 ) : (
                   shapeChoices.map((s) => (
                     <option key={s.shapeId} value={s.shapeId}>
@@ -536,7 +554,7 @@ export default function App() {
             <div style={{ marginTop: 10 }}>
               {mappings.length === 0 ? (
                 <div className="muted">
-                  <b>No mappings yet.</b> Click <b>Refresh shapes</b>, then add mappings for each field.
+                  <b>No mappings yet.</b> Load a CSV (shapes scan automatically) or click <b>Refresh shapes</b>, then add mappings for each field.
                 </div>
               ) : (
                 <div className="mappingList">
