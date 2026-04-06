@@ -5,11 +5,11 @@
            xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
            xsi:type="TaskPaneApp">
   <Id>3a7c3c66-5e69-4ad5-8c9f-70e74c1c3b07</Id>
-  <Version>0.1.0.0</Version>
-  <ProviderName>Local Dev</ProviderName>
+  <Version>0.1.1.0</Version>
+  <ProviderName>BatchSlide</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Lower Third Builder"/>
-  <Description DefaultValue="Build lower-third slides from a CSV file by mapping columns to template text boxes."/>
+  <DisplayName DefaultValue="BatchSlide"/>
+  <Description DefaultValue="Generate slides in batch from a CSV by mapping columns to text boxes on a template slide."/>
   <IconUrl DefaultValue="https://ppt-lower-third-csv.vercel.app/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://ppt-lower-third-csv.vercel.app/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://ppt-lower-third-csv.vercel.app/"/>
@@ -40,18 +40,18 @@
         <DesktopFormFactor>
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
             <OfficeTab id="TabHome">
-              <Group id="LowerThirdBuilder.Group">
-                <Label resid="LowerThirdBuilder.GroupLabel"/>
+              <Group id="BatchSlide.Group">
+                <Label resid="BatchSlide.GroupLabel"/>
                 <Icon>
                   <bt:Image size="16" resid="Icon.16x16"/>
                   <bt:Image size="32" resid="Icon.32x32"/>
                   <bt:Image size="80" resid="Icon.80x80"/>
                 </Icon>
-                <Control xsi:type="Button" id="LowerThirdBuilder.ShowTaskpaneButton">
-                  <Label resid="LowerThirdBuilder.ButtonLabel"/>
+                <Control xsi:type="Button" id="BatchSlide.ShowTaskpaneButton">
+                  <Label resid="BatchSlide.ButtonLabel"/>
                   <Supertip>
-                    <Title resid="LowerThirdBuilder.ButtonLabel"/>
-                    <Description resid="LowerThirdBuilder.ButtonDesc"/>
+                    <Title resid="BatchSlide.ButtonLabel"/>
+                    <Description resid="BatchSlide.ButtonDesc"/>
                   </Supertip>
                   <Icon>
                     <bt:Image size="16" resid="Icon.16x16"/>
@@ -80,11 +80,11 @@
         <bt:Url id="Taskpane.Url" DefaultValue="https://ppt-lower-third-csv.vercel.app/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="LowerThirdBuilder.GroupLabel" DefaultValue="Lower Third Builder"/>
-        <bt:String id="LowerThirdBuilder.ButtonLabel" DefaultValue="Lower Third Builder"/>
+        <bt:String id="BatchSlide.GroupLabel" DefaultValue="BatchSlide"/>
+        <bt:String id="BatchSlide.ButtonLabel" DefaultValue="BatchSlide"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="LowerThirdBuilder.ButtonDesc" DefaultValue="Open the Lower Third Builder task pane."/>
+        <bt:String id="BatchSlide.ButtonDesc" DefaultValue="Open the BatchSlide task pane."/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

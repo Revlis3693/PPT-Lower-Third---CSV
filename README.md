@@ -1,6 +1,6 @@
-# Lower Third Builder (PowerPoint task pane add-in)
+# BatchSlide (PowerPoint task pane add-in)
 
-An MVP PowerPoint Office Add-in that builds lower-third slides from a **CSV** by mapping CSV columns to **text boxes** on a template slide.
+An MVP PowerPoint Office Add-in (**BatchSlide**) that **batch-generates** slides from a **CSV** by mapping CSV columns to **text boxes** on a template slide.
 
 ## Prerequisites
 
@@ -58,8 +58,8 @@ This serves the task pane at `https://localhost:3000/taskpane.html` and outputs 
 - Open PowerPoint.
 - Go to **Insert** → **Add-ins** → **My Add-ins**.
 - Choose **Add a Custom Add-in** → **Add from file...**
-- Select: `LowerThirdBuilder/manifest/manifest.xml`
-- The add-in will appear on the ribbon. Click **Lower Third Builder** to open the task pane.
+- Select: `LowerThirdBuilder/manifest/manifest.xml` (path to this repo on your machine)
+- The add-in will appear on the ribbon. Click **BatchSlide** to open the task pane.
 
 ### PowerPoint on Mac
 
@@ -80,7 +80,7 @@ Sideloading behavior varies by tenant and admin policy. If your tenant allows it
 
 ### 1) Create a template slide (in PowerPoint)
 
-- Create a new slide that represents your lower-third layout.
+- Create a new slide that represents your template layout (e.g. title or lower-third style).
 - Add **text boxes** for fields like **Name**, **Title**, **Company**.
 - (Optional but recommended) Give text boxes meaningful names in the **Selection Pane**, because duplicates are matched by **shape name** during generation.
 

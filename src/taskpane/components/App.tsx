@@ -364,7 +364,7 @@ export default function App() {
   return (
     <div className="app">
       <div className="header">
-        <h1>Lower Third Builder</h1>
+        <h1>BatchSlide</h1>
         <div className="row">
           <button
             type="button"

@@ -2,8 +2,8 @@
  * Production deployment URL for the add-in (HTTPS only, no trailing slash).
  *
  * Examples:
- *   "https://lower-third-builder.netlify.app"
- *   "https://cdn.contoso.com/lower-third"
+ *   "https://your-app.vercel.app"
+ *   "https://cdn.contoso.com/batch-slide"
  *
  * After you set this, run: npm run build
  * Then upload the contents of /dist to that host (same paths as localhost: taskpane.html, manifest.xml, assets/*).

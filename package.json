@@ -1,8 +1,8 @@
 {
-  "name": "lower-third-builder",
-  "version": "0.1.0",
+  "name": "batch-slide",
+  "version": "0.1.1",
   "private": true,
-  "description": "PowerPoint task pane add-in for building lower-thirds from CSV.",
+  "description": "PowerPoint task pane add-in (BatchSlide) — batch-generate slides from CSV.",
   "license": "MIT",
   "scripts": {
     "dev": "node scripts/generate-icons.js && webpack serve --mode development",

@@ -124,7 +124,7 @@ module.exports = async (env, options) => {
             const port = addr && typeof addr === "object" ? addr.port : 3000;
             // eslint-disable-next-line no-console
             console.log(
-              `\n[Lower Third Builder] Dev server is running. Leave this terminal open.\n` +
+              `\n[BatchSlide] Dev server is running. Leave this terminal open.\n` +
                 `  Task pane: https://localhost:${port}/taskpane.html\n` +
                 `  Then sideload manifest/manifest.xml in PowerPoint (Insert → Add-ins → Add from file).\n`
             );
