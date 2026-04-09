@@ -16,8 +16,10 @@ export function parseCsv(file: File): Promise<ParsedCsv> {
       transformHeader: (h) => h.trim(),
       transform: (v) => (typeof v === "string" ? v.trim() : v),
       complete: (results) => {
-        if (results.errors?.length) {
-          reject(new Error(results.errors.map((e) => e.message).join("\n")));
+        // Single-column files have no delimiter in the body; Papa warns but still parses correctly with ','.
+        const fatalErrors = (results.errors ?? []).filter((e) => e.code !== "UndetectableDelimiter");
+        if (fatalErrors.length) {
+          reject(new Error(fatalErrors.map((e) => e.message).join("\n")));
           return;
         }
         const metaFields = results.meta?.fields ?? [];
